@@ -1,79 +1,49 @@
-import java.io.*;
-import java.util.StringTokenizer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Stack;
 
 public class Main {
-    static FastReader scan = new FastReader();
-    static StringBuilder sb = new StringBuilder();
 
-    static void input(){
-        str = scan.next();
-    }
-    static void pro(){
-        int min = Integer.MAX_VALUE;
+    public static void main(String[]args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int aCnt = 0;
-        for(char c: str.toCharArray()) {
-            if(c =='a') {
-                aCnt++;
+        int N = Integer.parseInt(br.readLine());
+
+        Stack<String> stack = new Stack<>();
+
+        for (int i=0; i<N;i++){
+            String[] c = br.readLine().split(" ");
+            switch(c[0]){
+                case "push":
+                    stack.push(c[1]);
+                    break;
+                case "pop":
+                    if(stack.isEmpty()){
+                        System.out.println(-1);
+                    }else{
+                        System.out.println(stack.pop());
+                    }
+                    break;
+                case "top":
+                    if(stack.isEmpty()){
+                        System.out.println(-1);
+                    }else{
+                        System.out.println(stack.peek());
+                    }
+                    break;
+                case "size":
+                    System.out.println(stack.size());
+                    break;
+                case "empty":
+                    if(stack.isEmpty()){
+                        System.out.println(1);
+                    }else {
+                        System.out.println(0);
+                    }
+                    break;
             }
         }
-
-        for(int i=0; i<str.length(); i++) {
-            int bCnt = 0;
-            for(int j=i; j<i+aCnt; j++) {
-                int idx = j%str.length(); // 문자열이 원형이기 때문에 idx를 순환하도록 처리
-                if(str.charAt(idx) =='b') {
-                    bCnt++;
-                }
-            }
-            min = Math.min(min, bCnt);
-        }
-        System.out.println(min);
-    }
-
-    static String str = "";
-
-    public static void main(String[] args) {
-        input();
-        pro();
-    }
-
-    static class FastReader {
-        BufferedReader br;
-        StringTokenizer st;
-        public FastReader() {
-            br = new BufferedReader(new InputStreamReader(System.in));
-        }
-        public FastReader(String s) throws FileNotFoundException {
-            br = new BufferedReader(new FileReader(new File(s)));
-        }
-        String next() {
-            while (st == null || !st.hasMoreElements()) {
-                try {
-                    st = new StringTokenizer(br.readLine());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return st.nextToken();
-        }
-        int nextInt() {
-            return Integer.parseInt(next());
-        }
-        long nextLong() {
-            return Long.parseLong(next());
-        }
-        double nextDouble() {
-            return Double.parseDouble(next());
-        }
-        String nextLine() {
-            String str = "";
-            try {
-                str = br.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return str;
-        }
+        br.close();
     }
 }
