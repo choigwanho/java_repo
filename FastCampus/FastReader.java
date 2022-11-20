@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.*;
 
 public class FastReader {
-    static StringBuilder sb = new StringBuilder();
+
     BufferedReader br;
     StringTokenizer st;
     
