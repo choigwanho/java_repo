@@ -1,87 +1,173 @@
 import java.io.*;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class Main {
-    static FastReader scan = new FastReader();
-    static StringBuilder sb = new StringBuilder();
+class Pair {
+    int x, y;
 
-    static void input(){
-        N = scan.nextInt();
-        M = scan.nextInt();
-        eventArr = new int[N][N];
-        baseCampSet = new HashSet<Location>();
-        for (int i=0; i<N; i++){
-            for (int j=0; j<N; j++){
-                int num = scan.nextInt();
-                if (num==1) {
-                    Location baseCamp = new Location();
-                    baseCamp.x = i;
-                    baseCamp.y = j;
-                    baseCampSet.add(baseCamp);
+    public Pair(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Boolean isSame(Pair p){
+        return this.x == p.x && this.y == p.y;
+    }
+}
+
+public class Main {
+
+    public static final int INT_MAX = Integer.MAX_VALUE;
+    public static final Pair EMPTY = new Pair(-1, -1);
+
+    public static final int DIR_NUM = 4;
+    public static final int MAX_M = 30;
+    public static final int MAX_N = 15;
+
+    public static int n, m;
+
+    public static int[][] grid = new int[MAX_N][MAX_N];
+
+    public static Pair[] cvsList = new Pair[MAX_M];
+
+    public static Pair[] people = new Pair[MAX_M];
+
+    public static int currT;
+
+    public static int[] dx = new int[]{-1,  0, 0, 1};
+    public static int[] dy = new int[]{ 0, -1, 1, 0};
+    public static int[][] step = new int[MAX_N][MAX_N];
+    public static boolean[][] visited = new boolean[MAX_N][MAX_N];
+
+    static boolean OOB(int x, int y) {
+        return x<0 || x >= n || y<0 || y >= n;
+    }
+    static boolean isValid(int x, int y) {
+        return !OOB(x, y) && !visited[x][y] && grid[x][y] != 2;
+    }
+
+    static void bfs(Pair startPos) {
+
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < n; j++) {
+                visited[i][j] = false;
+                step[i][j] = 0;
+            }
+
+        Queue<Pair> q = new LinkedList<>();
+        int sx = startPos.x, sy = startPos.y;
+        q.add(startPos);
+        visited[sx][sy] = true;
+        step[sx][sy] = 0;
+
+        while(!q.isEmpty()) {
+            Pair currPos = q.poll();
+
+            int x = currPos.x, y = currPos.y;
+            for(int i = 0; i < DIR_NUM; i++) {
+                int nx = x + dx[i], ny = y + dy[i];
+                if(isValid(nx, ny)) {
+                    visited[nx][ny] = true;
+                    step[nx][ny] = step[x][y] + 1;
+                    q.add(new Pair(nx, ny));
                 }
-                eventArr[i][j]=num;
             }
         }
-        storeSet = new HashSet<Location>();
-        for (int i=0; i<M; i++){
-            Location store = new Location();
-            store.x = scan.nextInt();
-            store.y = scan.nextInt();
-            storeSet.add(store);
+    }
+
+    static void simulate() {
+
+        for(int i = 0; i < m; i++) {
+            if(people[i] == EMPTY || people[i].isSame(cvsList[i]))
+                continue;
+
+            bfs(cvsList[i]);
+
+            int px = people[i].x, py = people[i].y;
+
+            int minDist = INT_MAX;
+            int minX = -1, minY = -1;
+            for(int j = 0; j < DIR_NUM; j++) {
+                int nx = px + dx[j], ny = py + dy[j];
+                if(!OOB(nx, ny) && visited[nx][ny] && minDist > step[nx][ny]) {
+                    minDist = step[nx][ny];
+                    minX = nx; minY = ny;
+                }
+            }
+            people[i] = new Pair(minX, minY);
         }
+
+        for(int i = 0; i < m; i++) {
+            if(people[i].isSame(cvsList[i])) {
+                int px = people[i].x, py = people[i].y;
+                grid[px][py] = 2;
+            }
+        }
+
+        if(currT > m)
+            return;
+
+        bfs(cvsList[currT - 1]);
+
+        int minDist = INT_MAX;
+        int minX = -1, minY = -1;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if(visited[i][j] && grid[i][j] == 1 && minDist > step[i][j]) {
+                    minDist = step[i][j];
+                    minX = i; minY = j;
+                }
+            }
+        }
+        people[currT - 1] = new Pair(minX, minY);
+        grid[minX][minY] = 2;
     }
 
-    static void sol(){
-
-    }
-
-    static class Location {
-        int x;
-        int y;
+    static boolean end() {
+        for(int i = 0; i < m; i++) {
+            if(!people[i].isSame(cvsList[i]))
+                return false;
+        }
+        return true;
     }
 
     public static void main(String[] args) {
-        // m명이 빵을 구하려고 함
-        // n번 사람이 n분에 각자의 베이스 캠프에서 출발하여 편의점으로 이동
-        // 사람들은 출발 시간이 되기 전에는 격자 밖에 나와 있으며
-        // 사람들이 목표로 하는 편의점은 모두 다름
-        // n*n 크기의 격자 위에서 진행 됨
 
-        // 3가지 행동으로 움직임
-        // 3가지 행동은 총 1분동안 진행됨
-        // 1,2,3 순서로 진행됨
-        // #1
-        // 본인이 가고 싶은 편의점 방향을 향해서 1칸 이동
-        // 최단거리가 여러개라면 상좌우하의 우선순위로 이동
-        // #2
-        // 편의점에 도착하면 멈추고, 그 장소를 다른 사람들이 지나갈 수 없게도미
-        // #3
-        // 현재 시간이 t분이고 t<=m을 만족한다면
-        // t번 사람은 자신이 가고 싶은 편의점과 가장 가까이 있는 베이스 캠프에 들어감
-        // 베이스캠프가 여러 가지인 경우에는 그 중 행과 열이 작은 순서로 들어감
-        // t번 사람이 베이스 캠프로 이동하는 데에는 시간이 소요되지 않음
-        // 해당 베이스 캠프가 있는 칸을 다른 사람들이 지나갈 수 없게됨
+        FastReader scan = new FastReader();
 
-        input();
-        sol();
+        n = scan.nextInt();
+        m = scan.nextInt();
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < n; j++)
+                grid[i][j] = scan.nextInt();
+
+        for(int i = 0; i < m; i++) {
+            int x = scan.nextInt();
+            int y = scan.nextInt();
+            cvsList[i] = new Pair(x - 1, y - 1);
+        }
+
+        for(int i = 0; i < m; i++)
+            people[i] = EMPTY;
+
+        while(true) {
+            currT++;
+            simulate();
+            if(end()) break;
+        }
+
+        System.out.println(currT);
     }
-
-    static int N;
-    static int M;
-    static int[][] eventArr;
-    static HashSet<Location> storeSet;
-    static HashSet<Location> baseCampSet;
 
     static class FastReader {
         BufferedReader br;
         StringTokenizer st;
+
         public FastReader() {
             br = new BufferedReader(new InputStreamReader(System.in));
         }
-        public FastReader(String s) throws FileNotFoundException {
-            br = new BufferedReader(new FileReader(new File(s)));
-        }
+
         String next() {
             while (st == null || !st.hasMoreElements()) {
                 try {
@@ -92,23 +178,9 @@ public class Main {
             }
             return st.nextToken();
         }
+
         int nextInt() {
             return Integer.parseInt(next());
-        }
-        long nextLong() {
-            return Long.parseLong(next());
-        }
-        double nextDouble() {
-            return Double.parseDouble(next());
-        }
-        String nextLine() {
-            String str = "";
-            try {
-                str = br.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return str;
         }
     }
 }
