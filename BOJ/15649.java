@@ -7,7 +7,6 @@ public class Main{
     public static boolean[] vis;
     public static void dfs(int n, int m, int d){
 
-        // 깊이가 m이면 리턴
         if (d==m){
             for(int val : arr){
                 System.out.println(val + " ");
@@ -24,6 +23,7 @@ public class Main{
             }
         }
     }
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
