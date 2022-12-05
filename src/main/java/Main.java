@@ -1,54 +1,32 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
-
+import java.io.*;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    public static int getSum(String s){
-        int sum=0;
-        for(int i=0; i<s.length(); i++){
-            if(s.charAt(i)>='0'&&s.charAt(i)<='9') sum+=s.charAt(i)-'0';
-        }
-        return sum;
-    }
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        // 기타의 개수 N, 최대 50개
-        int N = Integer.parseInt(br.readLine());
-        String[] arr = new String[N];
+        int N = Integer.parseInt(st.nextToken());
+        // 1을 만드는 연산의 횟수의 최소값을 저장하는 배열
+        int[] dp = new int[N+1];
 
-        // 시리얼 넘버, 길이, 숫자만의 합을 객채로 생성하여 추가
-        for(int i=0; i<N; i++) arr[i] = br.readLine();
+        for(int i=2; i<N+1; i++){
 
+            // 2로 나뉠 때 이전 연산 횟수
+            int val2 = Math.min(dp[i-1], dp[(int)i/2]);
+            // 3으로 나뉠 때 이전 연산 횟수로 갱신
+            int val3 = Math.min(dp[i-1],dp[(int)i/3]);
 
-        Arrays.sort(arr, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                // 길이가 짧은 순으로 정렬
-                if(o1.length()<o2.length()) {
-                    return -1;
-                }
-                else if(o1.length()==o2.length()) {
-                    // 길이가 같고, 합이 같은 경우 -> String 아스키 값 비교
-                    if(getSum(o1)==getSum(o2)) {
-                        return o1.compareTo(o2);
-                    }
-                    // 길이가 같고, 합이 다른 경우
-                    else {
-                        return Integer.compare(getSum(o1), getSum(o2));
-                    }
-                }
-                else {
-                    return 1;
-                }
-            }
-        });
-        for(int i=0; i<N; i++) sb.append(arr[i]).append("\n");
-        System.out.println(sb);
+            // 2와 3으로 모두 나뉘면 2로 나뉠 때 값과 3으로 나뉠 때 값중 작은 값에 1을 더해 갱신
+            if (i%3==0 && i%2==0) dp[i] = Math.min(val2,val3)+1;
+            // 3으로 나뉠 때 이전 연산 횟수에 1을 더해 갱신
+            else if(i%3==0 && i%2!=0) dp[i] = val3+1;
+            // 2로 나뉠 때 이전 연산 횟수에 1을 더해 갱신
+            else if(i%3!=0 && i%2==0) dp[i] = val2+1;
+            // 나뉘지 않는 경우, 이전 연산 횟수에 1을 더해 갱신
+            else dp[i] = dp[i-1]+1;
+        }
+        System.out.println(dp[N]);
     }
 }
