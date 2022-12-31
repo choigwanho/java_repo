@@ -53,7 +53,6 @@ public class Main{
     static int find(int x){
         if (x == parent[x]) return x;
         return parent[x] = find(parent[x]); // root로 parent 압축
-
     }
 
     static boolean union(int a, int b){
