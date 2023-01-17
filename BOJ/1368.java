@@ -6,12 +6,6 @@ N개의 논에 물을 대는 문제
 다른 하나느 이미 물을 대고 있는 다른 논으로 부터 물을 끌어오는 방법
 각각의 논에 대해 우물을 파는 비용과 논들 사이에 물을 끌어오는 비용들이 주어졌을 때 최소의 비용으로 논에 물을 대는 문제
 
-<접근>
-주어진 문제에서 N개의 논은 노드이고 논 사이 간선들의 가중치가 부여된다.
-이 그래프에서 모든 정점을 연결하는 부분 그래프 중에서 그 가중치의 합이 최소인 트리를 찾으면 문제에서 요구하는 결과를 구할 수 있다.
-
-최대 간선의 개수는 논의 개수, 즉 노드의 개수가 300일 때 300(300-1)/2 = 150*299 = 약 3만 개가 된다.
-
 <입력>
 논의 수 300
 i번째 논에 우물을 팔 때 드는 비용 10만
@@ -20,6 +14,15 @@ i번째 논과 j번째 논을 연결하는데 드는 비용 10만
 <출력>
 모든 논에 물을 대는데 필요한 최소비용 출력
 
+<풀이>
+주어진 문제에서 N개의 논은 노드이고 논 사이 간선들의 가중치가 부여된다.
+이 그래프에서 모든 정점을 연결하는 부분 그래프 중에서 그 가중치의 합이 최소인 트리를 찾으면 문제에서 요구하는 결과를 구할 수 있다.
+
+최대 간선의 개수는 논의 개수, 즉 노드의 개수가 300일 때 300(300-1)/2 = 150*299 = 약 3만 개가 된다.
+
+주어진 그래프에서 간선의 비용이 가장 작은 것에서 부터 시작해서 순환하지 않는 최소 스패닝트리를 찾는다.
+
+크루스칼 알고리즘을 사용하면 O(ElogE) 시간복잡도로 풀이가 가능하다.
 */
 
 import java.io.BufferedReader;
@@ -33,7 +36,7 @@ public class Main{
     private static int N; // 논의 수 (정점 개수)
     private static int[] wArr; // 직접 우물을 팔때 드는 비용 저장
     private static int[] parents; // 서로소 배열
-    private static PriorityQueue<Edge> pq = new PriorityQueue<>();
+    private static PriorityQueue<Edge> pq = new PriorityQueue<>(); // 간선을 담을 우선순위 큐
     private static int answer = 0;
 
     private static void input(){
@@ -95,8 +98,8 @@ public class Main{
             this.w = w;
         }
         @Override
-        public int compareTo(Edge e) {
-            return w - e.w;
+        public int compareTo(Edge o) {
+            return w - o.w;
         }
     }
     private static class FastReader {
