@@ -7,93 +7,80 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int N,M,A,B,K;
-    static int arr[][];
-    static boolean visit[][];
+    static int N,M; // 지도의 크기 n과 m
+    static int map[][]; // 지도
+    static int distance[][];  // 거리 기록
+    static boolean isVisited[][];  // 방문 확인
     static int moveX[] = {0,1,0,-1};
     static int moveY[] = {-1,0,1,0};
-    static Point start, end;
+    static Point target;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        /* 첫 줄 다섯 개의 정수 */
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        A = Integer.parseInt(st.nextToken());
-        B = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
+        /* 첫 줄 지도의 크기 */
+        N = Integer.parseInt(st.nextToken()); // 세로
+        M = Integer.parseInt(st.nextToken()); // 가로
 
-        arr = new int[N+1][M+1];
-        visit = new boolean[N+1][M+1];
+        map = new int[N][M];
+        distance = new int[N][M];
+        isVisited = new boolean[N][M]; 
 
-        /* 장애물이 설치된 위치 */
-        for(int i=0; i<K; i++) {
+        /* 세로의 길이 만큼 지도 입력 */
+        for(int i=0; i<N; i++) {
             st = new StringTokenizer(br.readLine());
-            int y = Integer.parseInt(st.nextToken());
-            int x = Integer.parseInt(st.nextToken());
-            arr[y][x] = -1;
+            for(int j=0; j<M; j++){
+                int temp = Integer.parseInt(st.nextToken());
+                map[i][j] = temp;
+                if(temp==2){
+                    target = new Point(i,j);
+                }
+            }
         }
 
-        /* 시작점 위치 */
-        st = new StringTokenizer(br.readLine());
-        int y = Integer.parseInt(st.nextToken());
-        int x = Integer.parseInt(st.nextToken());
-        start = new Point(x,y);
+        bfs();
 
-        /* 도착점의 위치 */
-        st = new StringTokenizer(br.readLine());
-        y = Integer.parseInt(st.nextToken());
-        x = Integer.parseInt(st.nextToken());
-        end = new Point(x,y);
-
-        System.out.println(bfs());
+        for(int i=0; i<N; i++){
+            for(int j=0; j<M; j++){
+                System.out.print(distance[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
+
     static boolean Range(int i, int j) {
         if(1<=i && i<=N && 1<=j && j<=M)
             return true;
         return false;
     }
-    static boolean isPossible(int i, int j) {
-        if(visit[i][j])
-            return false;
-        for(int i_=i; i_<i+A; i_++) {
-            for(int j_=j; j_<j+B; j_++) {
-                if(!Range(i_,j_))
-                    return false;
-                if(arr[i_][j_] == -1)
-                    return false;
-            }
-        }
-        visit[i][j] = true;
-        return true;
-    }
-    private static int bfs() {
+
+    private static void bfs() {
         Queue<Point> queue = new LinkedList<>();
-        queue.add(start);
-        visit[start.y][start.x] = true;
-        int result = 0;
+        queue.add(target);
+        isVisited[target.y][target.x] = true;  // 목적지에서부터 거리 시작
+
         while(!queue.isEmpty()) {
             int size = queue.size();
             for(int i=0; i<size; i++) {
                 Point po = queue.poll();
-                if(po.x == end.x && po.y == end.y) {
-                    return result;
-                }
+
                 for(int d=0; d<4; d++) {
-                    int newX = po.x + moveX[d];
                     int newY = po.y + moveY[d];
+                    int newX = po.x + moveX[d];
 
                     if(!Range(newY, newX))
                         continue;
-                    if(!isPossible(newY, newX))
+                    if(isVisited[newY][newX])
                         continue;
-
+                    if(map[newY][newX] == 0 )
+                        continue;
+                    
+                    distance[newY][newX] = distance[po.y][po.x] + 1;
+                    isVisited[newY][newX] = true;
                     queue.add(new Point(newX,newY));
                 }
             }
-            result++;
         }
-        return -1;
     }
 }
